@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
- 
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
-                  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
  
     <!--
     	See http://wiki.openmrs.org/display/docs/Module+liquibase+File for 
@@ -14,7 +15,7 @@
     -->
 
     <changeSet id="esaudefeatures-2021-03-21-21:03" author="Willa Mhawila">
-        <preConditions onError="MARK_RAN">
+        <preConditions onError="MARK_RAN" onFail="MARK_RAN">
             <not><tableExists tableName="esaudefeatures_program_cohort"/></not>
         </preConditions>
         <comment>
@@ -60,7 +61,7 @@
     </changeSet>
 
     <changeSet id="esaudefeatures-2024-02-28-14:51EAT" author="Willa">
-        <preConditions onError="MARK_RAN">
+        <preConditions onError="MARK_RAN" onFail="MARK_RAN">
             <not><tableExists tableName="esaudefeatures_rps_import_log"/></not>
         </preConditions>
         <comment>
