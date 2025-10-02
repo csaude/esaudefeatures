@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>esaudefeatures</artifactId>
-		<version>2.2.2_Openmrs_2.6.11</version>
+		<version>2.2.3_Openmrs_2.6.11</version>
 	</parent>
 
 	<artifactId>esaudefeatures-omod</artifactId>
