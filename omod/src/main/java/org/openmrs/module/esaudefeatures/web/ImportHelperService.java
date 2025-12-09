@@ -698,10 +698,27 @@ public class ImportHelperService {
 			response = httpClient.newCall(userRequest).execute();
 			if (response.isSuccessful() && response.code() == HttpServletResponse.SC_OK) {
 				SimpleObject fetchedUser = SimpleObject.parseJson(response.body().string());
-				User user = new User();
-				user.setUuid((String) fetchedUser.get("uuid"));
-				user.setSystemId((String) fetchedUser.get("systemId"));
-				user.setUsername((String) fetchedUser.get("username"));
+                String fetchedUsername = (String) fetchedUser.get("username");
+                String uuid = (String) fetchedUser.get("uuid");
+                String systemId = (String) fetchedUser.get("systemId");
+
+                User user = new User();
+				user.setUuid(uuid);
+				user.setSystemId(systemId);
+
+                User existingUsername = userService.getUserByUsername(fetchedUsername);
+                String finalUsername;
+
+                if (existingUsername != null) {
+                     finalUsername = fetchedUsername + "_"  + uuid;
+                    int maxLength = 50;
+                    if (finalUsername.length() > maxLength) {
+                        finalUsername = finalUsername.substring(0, maxLength);
+                    }
+                     user.setUsername(finalUsername);
+                }else {
+                   user.setUsername(fetchedUsername);
+                }
 
 				// Cache the user before calling import person because potentially this might need to import users too.
 				importedUsersCache.put(user, fetchedUser);
