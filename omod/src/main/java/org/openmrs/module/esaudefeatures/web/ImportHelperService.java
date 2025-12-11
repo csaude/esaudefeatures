@@ -32,6 +32,7 @@ import org.openmrs.api.PersonService;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.esaudefeatures.EsaudeFeaturesConstants;
+import org.openmrs.module.esaudefeatures.api.RCSService;
 import org.openmrs.module.esaudefeatures.web.exception.RemoteImportException;
 import org.openmrs.module.esaudefeatures.web.exception.RemoteOpenmrsSearchException;
 import org.openmrs.module.webservices.rest.SimpleObject;
@@ -98,6 +99,8 @@ public class ImportHelperService {
 	
 	private ConcurrentMap<User, Map<String, Object>> importedUsersCache = new ConcurrentHashMap<>();
 
+	private RCSService rcsService;
+
 	public static final List<String> IGNORED_PERSON_ATTRIBUTE_TYPES = new ArrayList<String>();
 	
 	static {
@@ -140,6 +143,11 @@ public class ImportHelperService {
 	@Autowired
 	public void setUserService(UserService userService) {
 		this.userService = userService;
+	}
+
+	@Autowired
+	public void setRcsService(RCSService rcsService) {
+		this.rcsService = rcsService;
 	}
 
 	public Patient getPatientFromFhirPatientResource(org.hl7.fhir.r4.model.Patient fhirPatientResource) {
@@ -671,7 +679,6 @@ public class ImportHelperService {
 	
 	public User importUserFromRemoteOpenmrsServer(String userUuid) {
 		LOGGER.info("Importing user with uuid {}", userUuid);
-
 		String[] urlUserPass = getRemoteOpenmrsHostUsernamePassword();
 		String errorMessage = String.format("Could not fetch user with uuid %s from server %s", userUuid, urlUserPass[0]);
 		String[] pathSegments = { "ws/rest/v1/user", userUuid };
@@ -701,15 +708,22 @@ public class ImportHelperService {
                 String fetchedUsername = (String) fetchedUser.get("username");
                 String uuid = (String) fetchedUser.get("uuid");
                 String systemId = (String) fetchedUser.get("systemId");
+				String email = (String) fetchedUser.get("email");
 
                 User user = new User();
 				user.setUuid(uuid);
 				user.setSystemId(systemId);
 
                 User existingUsername = userService.getUserByUsername(fetchedUsername);
-                String finalUsername;
+				User existingSystemId = rcsService.getUserBySystemId(systemId);
+				User existingEmail = !StringUtils.isEmpty(email) ? rcsService.getUserBySystemId(email) : null;
 
-                if (existingUsername != null) {
+                String finalUsername;
+				String finalSystemId;
+				String finalEmail;
+
+				// Harmonize username
+				if (existingUsername != null) {
                      finalUsername = fetchedUsername + "_"  + uuid;
                     int maxLength = 50;
                     if (finalUsername.length() > maxLength) {
@@ -719,6 +733,26 @@ public class ImportHelperService {
                 }else {
                    user.setUsername(fetchedUsername);
                 }
+
+				// Harmonize the systemId
+				if (existingSystemId != null) {
+					finalSystemId = systemId + "_"  + uuid;
+					int maxLength = 50;
+					if (finalSystemId.length() > maxLength) {
+						finalSystemId = finalSystemId.substring(0, maxLength);
+					}
+					user.setSystemId(finalSystemId);
+				}else {
+					user.setSystemId(systemId);
+				}
+
+				// Harmonize email
+				if (existingEmail != null) {
+					finalEmail = email + "_"  + uuid;
+					user.setEmail(finalEmail);
+				}else {
+					user.setEmail(email);
+				}
 
 				// Cache the user before calling import person because potentially this might need to import users too.
 				importedUsersCache.put(user, fetchedUser);
