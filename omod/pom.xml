@@ -42,9 +42,9 @@
 
 	<dependencies>
         <dependency>
-            <groupId>org.openmrs.module</groupId>
-            <artifactId>esaudefeatures-api</artifactId>
-            <version>2.2.2_Openmrs_2.2.3</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>${project.parent.artifactId}-api</artifactId>
+			<version>${project.parent.version}</version>
         </dependency>
 		<dependency>
 			<groupId>org.openmrs.web</groupId>
