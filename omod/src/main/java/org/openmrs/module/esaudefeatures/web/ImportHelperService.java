@@ -708,7 +708,6 @@ public class ImportHelperService {
                 String fetchedUsername = (String) fetchedUser.get("username");
                 String uuid = (String) fetchedUser.get("uuid");
                 String systemId = (String) fetchedUser.get("systemId");
-				String email = (String) fetchedUser.get("email");
 
                 User user = new User();
 				user.setUuid(uuid);
@@ -716,11 +715,9 @@ public class ImportHelperService {
 
                 User existingUsername = userService.getUserByUsername(fetchedUsername);
 				User existingSystemId = rcsService.getUserBySystemId(systemId);
-				User existingEmail = !StringUtils.isEmpty(email) ? rcsService.getUserBySystemId(email) : null;
 
                 String finalUsername;
 				String finalSystemId;
-				String finalEmail;
 
 				// Harmonize username
 				if (existingUsername != null) {
@@ -744,14 +741,6 @@ public class ImportHelperService {
 					user.setSystemId(finalSystemId);
 				}else {
 					user.setSystemId(systemId);
-				}
-
-				// Harmonize email
-				if (existingEmail != null) {
-					finalEmail = email + "_"  + uuid;
-					user.setEmail(finalEmail);
-				}else {
-					user.setEmail(email);
 				}
 
 				// Cache the user before calling import person because potentially this might need to import users too.
