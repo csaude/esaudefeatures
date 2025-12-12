@@ -32,6 +32,24 @@
         </property>
     </bean>
 
+    <bean id="esaudefeatures.RCSService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager" />
+        </property>
+        <property name="target">
+            <bean class="org.openmrs.module.esaudefeatures.api.impl.RCSServiceImpl">
+                <property name="rcsDao" ref="esaudefeatures.RCSDao" />
+            </bean>
+        </property>
+        <property name="preInterceptors">
+            <ref bean="serviceInterceptors" />
+        </property>
+        <property name="transactionAttributeSource">
+            <ref bean="transactionAttributeSource" />
+        </property>
+    </bean>
+
     <!-- Adds CohortProgramsService to OpenMRS context so it can be accessed
     calling Context.getService(CohortProgramsService.class) -->
     <bean parent="serviceContext">
@@ -39,6 +57,10 @@
             <list>
                 <value>org.openmrs.module.esaudefeatures.api.CohortProgramsService</value>
                 <ref bean="esaudefeatures.CohortProgramsService" />
+
+                <!-- RCS Service -->
+                <value>org.openmrs.module.esaudefeatures.api.RCSService</value>
+                <ref bean="esaudefeatures.RCSService" />
             </list>
         </property>
     </bean>
