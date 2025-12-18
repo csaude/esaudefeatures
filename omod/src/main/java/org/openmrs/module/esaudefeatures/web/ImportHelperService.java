@@ -711,10 +711,12 @@ public class ImportHelperService {
 
                 User user = new User();
 				user.setUuid(uuid);
-				user.setSystemId(systemId);
 
-                User existingUsername = userService.getUserByUsername(fetchedUsername);
+				User existingUsername = userService.getUserByUsername(fetchedUsername);
+				existingUsername = existingUsername == null ? userService.getUserByUsername(systemId) : existingUsername;
+
 				User existingSystemId = rcsService.getUserBySystemId(systemId);
+				existingSystemId = existingSystemId == null ? rcsService.getUserBySystemId(fetchedUsername) : existingSystemId;
 
                 String finalUsername;
 				String finalSystemId;
