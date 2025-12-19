@@ -713,32 +713,32 @@ public class ImportHelperService {
                 User user = new User();
 				user.setUuid(uuid);
 
-				User existingUsername = userService.getUserByUsername(fetchedUsername);
-				existingUsername = existingUsername == null ? userService.getUserByUsername(systemId) : existingUsername;
+				User conflictingUserByUserName = userService.getUserByUsername(fetchedUsername);
+				conflictingUserByUserName = conflictingUserByUserName == null ? rcsService.getUserBySystemId(fetchedUsername) : conflictingUserByUserName;
 
-				User existingSystemId = rcsService.getUserBySystemId(systemId);
-				existingSystemId = existingSystemId == null ? rcsService.getUserBySystemId(fetchedUsername) : existingSystemId;
+				User conflictingUserBySystemId = rcsService.getUserBySystemId(systemId);
+				conflictingUserBySystemId = conflictingUserBySystemId == null ? userService.getUserByUsername(systemId) : conflictingUserBySystemId;
 
 				User existingEmail = !StringUtils.isEmpty(email) ? rcsService.getUserBySystemId(email) : null;
 
-                String finalUsername;
+				String finalUsername;
 				String finalSystemId;
 				String finalEmail;
 
 				// Harmonize username
-				if (existingUsername != null) {
-                     finalUsername = fetchedUsername + "_"  + uuid;
-                    int maxLength = 50;
-                    if (finalUsername.length() > maxLength) {
-                        finalUsername = finalUsername.substring(0, maxLength);
-                    }
-                     user.setUsername(finalUsername);
-                }else {
-                   user.setUsername(fetchedUsername);
-                }
+				if (conflictingUserByUserName != null) {
+					finalUsername = fetchedUsername + "_"  + uuid;
+					int maxLength = 50;
+					if (finalUsername.length() > maxLength) {
+						finalUsername = finalUsername.substring(0, maxLength);
+					}
+					user.setUsername(finalUsername);
+				}else {
+					user.setUsername(fetchedUsername);
+				}
 
 				// Harmonize the systemId
-				if (existingSystemId != null) {
+				if (conflictingUserBySystemId != null) {
 					finalSystemId = systemId + "_"  + uuid;
 					int maxLength = 50;
 					if (finalSystemId.length() > maxLength) {
